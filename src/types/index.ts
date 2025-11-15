@@ -24,6 +24,21 @@ export type User = {
   index: string | number;
 };
 
+export type Room = {
+  roomId: number | string;
+  roomUsers: [
+    {
+      name: string;
+      index: number | string;
+    },
+  ];
+};
+
+export type Winner = {
+  name: string;
+  wins: number;
+};
+
 export type RequestReg = {
   name: string;
   password: string;
@@ -36,12 +51,7 @@ export type ResponseReg = {
   errorText: string;
 };
 
-export type ResponseUpdateWinners = [
-  {
-    name: string;
-    wins: number;
-  },
-];
+export type ResponseUpdateWinners = Winner[];
 
 export type RequestCreateRoom = {
   data: '';
@@ -56,17 +66,7 @@ export type ResponseCreateGame = {
   idPlayer: number | string;
 };
 
-export type ResponseUpdateRoom = [
-  {
-    roomId: number | string;
-    roomUsers: [
-      {
-        name: string;
-        index: number | string;
-      },
-    ];
-  },
-];
+export type ResponseUpdateRoom = Room[];
 
 export type RequestAddShips = {
   gameId: number | string;

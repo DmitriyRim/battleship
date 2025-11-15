@@ -1,7 +1,14 @@
 import { WebSocket } from 'ws';
-import { clients, users } from '../db';
-import { ResponseReg, RequestReg, Operation } from '../types';
+import { clients, rooms, users, winners } from '../db';
+import {
+  ResponseReg,
+  RequestReg,
+  Operation,
+  ResponseUpdateRoom,
+  ResponseUpdateWinners,
+} from '../types';
 import { parseJsonToString } from '../utils/utils';
+import crypto from 'node:crypto';
 
 export function createUser(ws: WebSocket, data: RequestReg) {
   const { name, password } = data;
@@ -19,3 +26,42 @@ export function createUser(ws: WebSocket, data: RequestReg) {
 
   ws.send(parseJsonToString<ResponseReg>(Operation.REG, answerData));
 }
+
+export function updateRoom(ws: WebSocket) {
+  ws.send(parseJsonToString<ResponseUpdateRoom>(Operation.UPDATE_ROOM, rooms));
+}
+
+export function updateWinners(ws: WebSocket) {
+  ws.send(
+    parseJsonToString<ResponseUpdateWinners>(Operation.UPDATE_WINNERS, winners),
+  );
+}
+
+export function createRoom(ws: WebSocket) {
+  const roomId = crypto.randomUUID();
+  const user = users.get(ws);
+
+  if (user) {
+    rooms.push({
+      roomId,
+      roomUsers: [
+        {
+          name: user.name,
+          index: user.index,
+        },
+      ],
+    });
+  }
+}
+
+/*
+export type Room = {
+  roomId: number | string;
+  roomUsers: [
+    {
+      name: string;
+      index: number | string;
+    },
+  ];
+};
+*/
