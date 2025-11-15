@@ -5,8 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "start": "npx tsc && node ./index.js",
-        "start:dev": "nodemon",
+        "start": "nodemon",
         "format": "prettier --write \"src/**/*.ts\"",
         "lint": "eslint \"src/**/*.ts\" --fix"
     },
