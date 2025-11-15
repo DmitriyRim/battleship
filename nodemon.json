@@ -2,5 +2,5 @@
   "ignore": ["dist/", "node_modules/"],
   "watch": ["src"],
   "ext": "ts,js,json",
-  "exec": "ts-node --project tsconfig.json ./src/index.ts"
+  "exec": "npx tsx ./src/index.ts"
 }
