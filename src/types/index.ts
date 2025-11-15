@@ -18,6 +18,12 @@ export type Dto<T> = {
   id: 0;
 };
 
+export type User = {
+  name: string;
+  password: string;
+  index: string | number;
+};
+
 export type RequestReg = {
   name: string;
   password: string;
