@@ -1,3 +1,5 @@
+import { WebSocket } from 'ws';
+
 export enum Operation {
   REG = 'reg',
   UPDATE_ROOM = 'update_room',
@@ -22,6 +24,7 @@ export type User = {
   name: string;
   password: string;
   index: string | number;
+  ws: WebSocket;
 };
 
 export type Room = {

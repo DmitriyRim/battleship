@@ -1,11 +1,14 @@
 import { WebSocket } from 'ws';
-import { clients, rooms, users, winners } from '../db';
+import { activeGameRooms, clients, rooms, users, winners } from '../db';
 import {
   ResponseReg,
   RequestReg,
   Operation,
   ResponseUpdateRoom,
   ResponseUpdateWinners,
+  RequestAddUserToRoom,
+  Room,
+  ResponseCreateGame,
 } from '../types';
 import { parseJsonToString } from '../utils/utils';
 import crypto from 'node:crypto';
@@ -21,20 +24,29 @@ export function createUser(ws: WebSocket, data: RequestReg) {
   };
 
   if (id) {
-    users.set(ws, { name, password, index: id });
+    users.set(ws, { name, password, index: id, ws });
   }
 
   ws.send(parseJsonToString<ResponseReg>(Operation.REG, answerData));
 }
 
-export function updateRoom(ws: WebSocket) {
-  ws.send(parseJsonToString<ResponseUpdateRoom>(Operation.UPDATE_ROOM, rooms));
+export function updateRoom() {
+  users.forEach((user) => {
+    user.ws.send(
+      parseJsonToString<ResponseUpdateRoom>(Operation.UPDATE_ROOM, rooms),
+    );
+  });
 }
 
-export function updateWinners(ws: WebSocket) {
-  ws.send(
-    parseJsonToString<ResponseUpdateWinners>(Operation.UPDATE_WINNERS, winners),
-  );
+export function updateWinners() {
+  users.forEach((user) => {
+    user.ws.send(
+      parseJsonToString<ResponseUpdateWinners>(
+        Operation.UPDATE_WINNERS,
+        winners,
+      ),
+    );
+  });
 }
 
 export function createRoom(ws: WebSocket) {
@@ -54,14 +66,44 @@ export function createRoom(ws: WebSocket) {
   }
 }
 
-/*
-export type Room = {
-  roomId: number | string;
-  roomUsers: [
-    {
-      name: string;
-      index: number | string;
-    },
-  ];
-};
-*/
+export function addUserToRoom(ws: WebSocket, data: RequestAddUserToRoom) {
+  const user = users.get(ws);
+  const roomIndex = rooms.findIndex((room) => {
+    return room.roomId === data.indexRoom;
+  });
+
+  if (
+    roomIndex !== -1 &&
+    user &&
+    rooms[roomIndex].roomUsers[0].index !== user.index
+  ) {
+    rooms[roomIndex].roomUsers.push({
+      name: user.name,
+      index: user.index,
+    });
+    const activeRoom = rooms.splice(roomIndex, 1)[0];
+
+    createGame(activeRoom);
+  }
+}
+
+export function createGame(room: Room) {
+  const idGame = crypto.randomUUID();
+
+  activeGameRooms.push({
+    idGame,
+    room,
+  });
+  users.forEach((user) => {
+    room.roomUsers.forEach((item) => {
+      if (item.index === user.index) {
+        user.ws.send(
+          parseJsonToString<ResponseCreateGame>(Operation.CREATE_GAME, {
+            idGame,
+            idPlayer: crypto.randomUUID(),
+          }),
+        );
+      }
+    });
+  });
+}

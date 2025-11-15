@@ -2,6 +2,7 @@ import { WebSocketServer } from 'ws';
 import { parseStringToJson } from '../utils/utils.js';
 import { Operation } from '../types/index.js';
 import {
+  addUserToRoom,
   createRoom,
   createUser,
   updateRoom,
@@ -25,12 +26,16 @@ wss.on('connection', function connection(ws) {
     switch (type) {
       case Operation.REG:
         createUser(ws, data);
-        updateRoom(ws);
-        updateWinners(ws);
+        updateRoom();
+        updateWinners();
         break;
       case Operation.CREATE_ROOM:
         createRoom(ws);
-        updateRoom(ws);
+        updateRoom();
+        break;
+      case Operation.ADD_USER_TO_ROOM:
+        addUserToRoom(ws, data);
+        updateRoom();
         break;
       default:
         break;
