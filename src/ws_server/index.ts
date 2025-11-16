@@ -2,6 +2,7 @@ import { WebSocketServer } from 'ws';
 import { parseStringToJson } from '../utils/utils.js';
 import { Operation } from '../types/index.js';
 import {
+  addShipsToGame,
   addUserToRoom,
   createRoom,
   createUser,
@@ -36,6 +37,9 @@ wss.on('connection', function connection(ws) {
       case Operation.ADD_USER_TO_ROOM:
         addUserToRoom(ws, data);
         updateRoom();
+        break;
+      case Operation.ADD_SHIPS:
+        addShipsToGame(ws, data);
         break;
       default:
         break;

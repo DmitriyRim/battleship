@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { activeGameRooms, clients, rooms, users, winners } from '../db';
+import { clients, games, rooms, users, winners } from '../db';
 import {
   ResponseReg,
   RequestReg,
@@ -9,6 +9,7 @@ import {
   RequestAddUserToRoom,
   Room,
   ResponseCreateGame,
+  RequestAddShips,
 } from '../types';
 import { parseJsonToString } from '../utils/utils';
 import crypto from 'node:crypto';
@@ -89,21 +90,32 @@ export function addUserToRoom(ws: WebSocket, data: RequestAddUserToRoom) {
 
 export function createGame(room: Room) {
   const idGame = crypto.randomUUID();
+  games.set(idGame, {});
 
-  activeGameRooms.push({
-    idGame,
-    room,
-  });
   users.forEach((user) => {
-    room.roomUsers.forEach((item) => {
+    room.roomUsers.forEach((item, index) => {
       if (item.index === user.index) {
         user.ws.send(
           parseJsonToString<ResponseCreateGame>(Operation.CREATE_GAME, {
             idGame,
-            idPlayer: crypto.randomUUID(),
+            idPlayer: index + 1,
           }),
         );
       }
     });
   });
+}
+
+export function addShipsToGame(ws: WebSocket, data: RequestAddShips) {
+  const game = games.get(data.gameId);
+
+  if (game) {
+    game[data.indexPlayer] = {
+      ws,
+      data,
+    };
+
+    games.set(data.gameId, game);
+  }
+
 }
