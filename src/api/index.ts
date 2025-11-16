@@ -10,6 +10,7 @@ import {
   Room,
   ResponseCreateGame,
   RequestAddShips,
+  ResponseStartGame,
 } from '../types';
 import { parseJsonToString } from '../utils/utils';
 import crypto from 'node:crypto';
@@ -118,4 +119,23 @@ export function addShipsToGame(ws: WebSocket, data: RequestAddShips) {
     games.set(data.gameId, game);
   }
 
+  startGame(data.gameId)
+}
+
+export function startGame(gameId: string | number) {
+  const game = games.get(gameId);
+
+  if (game && Object.values(game).length === 2) {
+    Object.values(game).forEach((user) => {
+      user?.ws.send(
+        parseJsonToString<ResponseStartGame>(
+          Operation.START_GAME,
+          {
+            ships: user.data.ships,
+            currentPlayerIndex: crypto.randomInt(1, 2)
+          },
+        ),
+      );
+    });
+  }
 }

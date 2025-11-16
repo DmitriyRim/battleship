@@ -42,6 +42,16 @@ export type Winner = {
   wins: number;
 };
 
+export type Ship = {
+  position: {
+    x: number;
+    y: number;
+  };
+  direction: boolean;
+  length: number;
+  type: 'small' | 'medium' | 'large' | 'huge';
+};
+
 export type RequestReg = {
   name: string;
   password: string;
@@ -73,32 +83,12 @@ export type ResponseUpdateRoom = Room[];
 
 export type RequestAddShips = {
   gameId: number | string;
-  ships: [
-    {
-      position: {
-        x: number;
-        y: number;
-      };
-      direction: boolean;
-      length: number;
-      type: 'small' | 'medium' | 'large' | 'huge';
-    },
-  ];
+  ships: Ship[];
   indexPlayer: number | string;
 };
 
 export type ResponseStartGame = {
-  ships: [
-    {
-      position: {
-        x: number;
-        y: number;
-      };
-      direction: boolean;
-      length: number;
-      type: 'small' | 'medium' | 'large' | 'huge';
-    },
-  ];
+  ships: Ship[];
   currentPlayerIndex: number | string;
 };
 // ------------------------ Attack
