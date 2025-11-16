@@ -1,5 +1,12 @@
 import { WebSocket } from 'ws';
-import { activeUsersInGame, clients, games, rooms, users, winners } from '../db';
+import {
+  activeUsersInGame,
+  clients,
+  games,
+  rooms,
+  users,
+  winners,
+} from '../db';
 import {
   ResponseReg,
   RequestReg,
@@ -128,7 +135,7 @@ export function startGame(gameId: string | number) {
   const currentPlayer = crypto.randomInt(1, 2);
 
   if (game && Object.values(game).length === 2) {
-    console.log(Object.values(game))
+    console.log(Object.values(game));
     Object.values(game).forEach((user) => {
       user?.ws.send(
         parseJsonToString<ResponseStartGame>(Operation.START_GAME, {

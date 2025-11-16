@@ -11,6 +11,7 @@ import {
 } from '../api/index.js';
 import { clients } from '../db/index.js';
 import crypto from 'node:crypto';
+import { attack, turn } from '../api/gameApi.js';
 
 const wssOptions = { port: 3000 };
 const wss = new WebSocketServer(wssOptions);
@@ -40,6 +41,10 @@ wss.on('connection', function connection(ws) {
         break;
       case Operation.ADD_SHIPS:
         addShipsToGame(ws, data);
+        break;
+      case Operation.ATTACK:
+        attack(data);
+        turn(data.gameId);
         break;
       default:
         break;
