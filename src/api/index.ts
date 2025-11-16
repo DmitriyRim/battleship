@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { clients, games, rooms, users, winners } from '../db';
+import { activeUsersInGame, clients, games, rooms, users, winners } from '../db';
 import {
   ResponseReg,
   RequestReg,
@@ -14,6 +14,7 @@ import {
 } from '../types';
 import { parseJsonToString } from '../utils/utils';
 import crypto from 'node:crypto';
+import { turn } from './gameApi';
 
 export function createUser(ws: WebSocket, data: RequestReg) {
   const { name, password } = data;
@@ -119,23 +120,24 @@ export function addShipsToGame(ws: WebSocket, data: RequestAddShips) {
     games.set(data.gameId, game);
   }
 
-  startGame(data.gameId)
+  startGame(data.gameId);
 }
 
 export function startGame(gameId: string | number) {
   const game = games.get(gameId);
+  const currentPlayer = crypto.randomInt(1, 2);
 
   if (game && Object.values(game).length === 2) {
+    console.log(Object.values(game))
     Object.values(game).forEach((user) => {
       user?.ws.send(
-        parseJsonToString<ResponseStartGame>(
-          Operation.START_GAME,
-          {
-            ships: user.data.ships,
-            currentPlayerIndex: crypto.randomInt(1, 2)
-          },
-        ),
+        parseJsonToString<ResponseStartGame>(Operation.START_GAME, {
+          ships: user.data.ships,
+          currentPlayerIndex: user.data.indexPlayer,
+        }),
       );
     });
+    activeUsersInGame.set(gameId, currentPlayer);
+    turn(gameId);
   }
 }

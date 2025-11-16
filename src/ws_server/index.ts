@@ -45,4 +45,8 @@ wss.on('connection', function connection(ws) {
         break;
     }
   });
+
+  ws.on('close', () => {
+    clients.delete(ws);
+  });
 });

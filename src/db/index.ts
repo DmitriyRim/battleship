@@ -9,3 +9,4 @@ export const games = new Map<
   { [key: string | number]: null | { ws: WebSocket; data: RequestAddShips } }
 >();
 export const winners = [];
+export const activeUsersInGame = new Map<string | number, string | number>();
